@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Toree Settings</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --card: #ffffff;
+    --text: #1f2430;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --accent: #2563eb;
+    --danger: #dc2626;
+    --success: #16a34a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 28px;
+    background: #1f2430;
+    color: #fff;
+  }
+  header h1 { font-size: 18px; margin: 0; font-weight: 600; }
+  header .logo { font-size: 20px; }
+  main {
+    max-width: 760px;
+    margin: 24px auto;
+    padding: 0 20px 60px;
+  }
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+  }
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+  }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+  .card h2 { font-size: 15px; margin: 0 0 12px; }
+  label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; margin-top: 10px; }
+  label:first-of-type { margin-top: 0; }
+  input[type="text"], input[type="password"], textarea, select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    background: #fff;
+    color: var(--text);
+  }
+  textarea { min-height: 72px; resize: vertical; font-family: ui-monospace, Menlo, monospace; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .row { display: flex; gap: 10px; }
+  .row > * { flex: 1; }
+  .btn {
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: #f3f4f6;
+    cursor: pointer;
+  }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.danger { background: #fff; border-color: var(--danger); color: var(--danger); }
+  .btn.small { padding: 4px 10px; font-size: 12px; }
+  .actions { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; }
+  .prompt-item {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .prompt-item-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .prompt-item-head strong { font-size: 13px; }
+  .prompt-item .model-tag {
+    font-size: 11px;
+    color: var(--muted);
+    background: #f3f4f6;
+    border-radius: 10px;
+    padding: 2px 8px;
+    margin-left: 6px;
+  }
+  .prompt-template {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .empty-state { font-size: 13px; color: var(--muted); text-align: center; padding: 20px 0; }
+  .key-row { display: flex; gap: 6px; align-items: flex-end; }
+  .key-row > div:first-child { flex: 1; }
+  .status-pill {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 6px;
+  }
+  .status-pill.ok { background: #dcfce7; color: var(--success); }
+  .status-pill.fail { background: #fee2e2; color: var(--danger); }
+  #toast-area { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 999; }
+  .toast {
+    background: #1f2430; color: #fff; font-size: 13px; padding: 10px 14px;
+    border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); max-width: 320px;
+  }
+  .toast.error { background: #4a1d24; }
+  .toast.success { background: #163a2b; }
+  table.log-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.log-table th, table.log-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  table.log-table th { color: var(--muted); font-weight: 600; }
+  .level-badge { font-size: 11px; padding: 1px 6px; border-radius: 8px; }
+  .level-badge.info { background: #e0e7ff; color: #3730a3; }
+  .level-badge.warn { background: #fef3c7; color: #92400e; }
+  .level-badge.error { background: #fee2e2; color: #991b1b; }
+  #export-output {
+    width: 100%; min-height: 220px; font-family: ui-monospace, Menlo, monospace; font-size: 12px;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <span class="logo">🌲</span>
+    <h1>Toree — Settings</h1>
+  </header>
+
+  <main>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="prompts">Prompts</button>
+      <button class="tab-btn" data-tab="settings">API &amp; Models</button>
+      <button class="tab-btn" data-tab="debug">Debug &amp; Logs</button>
+    </div>
+
+    <!-- PROMPTS TAB -->
+    <section class="panel active" id="panel-prompts">
+      <div class="card">
+        <h2 id="prompt-form-title">Add a prompt</h2>
+        <label for="prompt-title">Title (shown in the right-click menu)</label>
+        <input type="text" id="prompt-title" placeholder="e.g. Rephrase professionally" />
+
+        <label for="prompt-template">Prompt template</label>
+        <textarea id="prompt-template" placeholder="Rephrase this professionally: #TEXT#"></textarea>
+        <p class="hint">Use <code>#TEXT#</code> anywhere in the template — it will be replaced with the text the user selects on the page.</p>
+
+        <label for="prompt-model">Model</label>
+        <select id="prompt-model"></select>
+
+        <div class="actions">
+          <button class="btn" id="prompt-cancel-edit" style="display:none;">Cancel</button>
+          <button class="btn primary" id="prompt-save">Save prompt</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Your prompts</h2>
+        <div id="prompt-list"></div>
+      </div>
+    </section>
+
+    <!-- SETTINGS TAB -->
+    <section class="panel" id="panel-settings">
+      <div class="card">
+        <h2>API Keys</h2>
+
+        <label for="openai-key">OpenAI API key</label>
+        <div class="key-row">
+          <div><input type="password" id="openai-key" placeholder="sk-…" autocomplete="off" /></div>
+          <button class="btn small" data-test="openai">Test</button>
+        </div>
+        <span id="openai-status"></span>
+
+        <label for="gemini-key">Google Gemini API key</label>
+        <div class="key-row">
+          <div><input type="password" id="gemini-key" placeholder="AIza…" autocomplete="off" /></div>
+          <button class="btn small" data-test="gemini">Test</button>
+        </div>
+        <span id="gemini-status"></span>
+
+        <label for="groq-key">Groq API key</label>
+        <div class="key-row">
+          <div><input type="password" id="groq-key" placeholder="gsk_…" autocomplete="off" /></div>
+          <button class="btn small" data-test="groq">Test</button>
+        </div>
+        <span id="groq-status"></span>
+
+        <p class="hint">Keys are stored in <code>chrome.storage.sync</code> and are only sent directly to each provider's API when you run a prompt — never anywhere else.</p>
+      </div>
+
+      <div class="card">
+        <h2>Default model</h2>
+        <label for="default-model">Used for new prompts unless you pick a different one</label>
+        <select id="default-model"></select>
+
+        <div class="actions">
+          <button class="btn primary" id="settings-save">Save settings</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- DEBUG TAB -->
+    <section class="panel" id="panel-debug">
+      <div class="card">
+        <h2>Runtime logs <span class="hint" id="log-count"></span></h2>
+        <div class="actions" style="justify-content:flex-start; margin-top:0; margin-bottom:12px;">
+          <button class="btn small" id="refresh-logs">Refresh</button>
+          <button class="btn small danger" id="clear-logs">Clear logs</button>
+          <button class="btn primary small" id="export-logs">Export Logs for Claude</button>
+        </div>
+        <div style="max-height: 320px; overflow-y:auto;">
+          <table class="log-table">
+            <thead><tr><th>Time</th><th>Level</th><th>Message</th></tr></thead>
+            <tbody id="log-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" id="export-card" style="display:none;">
+        <h2>Markdown export</h2>
+        <p class="hint">Copied to your clipboard automatically — paste it directly into a Claude chat.</p>
+        <textarea id="export-output" readonly></textarea>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast-area"></div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>
